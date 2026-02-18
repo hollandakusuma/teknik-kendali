@@ -1,0 +1,27 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import control as ctrl
+
+# Definisi sistem orde 2
+K = 1
+zeta = 0.3     # damping ratio
+wn = 3         # natural frequency
+
+num = [K * wn**2]
+den = [1, 2*zeta*wn, wn**2]
+
+system = ctrl.TransferFunction(num, den)
+
+# Step response
+t, y = ctrl.step_response(system)
+
+plt.figure()
+plt.plot(t, y)
+plt.axhline(1)
+plt.xlabel("Time (s)")
+plt.ylabel("Output")
+plt.title("Step Response System")
+plt.show()
+
+info = ctrl.step_info(system)
+print(info)
