@@ -15,13 +15,46 @@ system = ctrl.TransferFunction(num, den)
 # Step response
 t, y = ctrl.step_response(system)
 
-plt.figure()
-plt.plot(t, y)
-plt.axhline(1)
+# Get step info for performance metrics
+info = ctrl.step_info(system)
+
+# Extract metrics
+rise_time = info['RiseTime']
+settling_time = info['SettlingTime']
+steady_state_value = info['SteadyStateValue']
+overshoot = info['Overshoot']
+peak_time = info['PeakTime']
+peak_value = info['Peak']
+
+plt.figure(figsize=(10, 6))
+plt.plot(t, y, label='Step Response')
+
+# Steady state line
+plt.axhline(steady_state_value, color='red', linestyle='--', label='Steady State Value')
+
+# Rise Time visualization (10% to 90% of steady state)
+plt.axhline(0.1 * steady_state_value, color='green', linestyle=':', label='10% Steady State')
+plt.axhline(0.9 * steady_state_value, color='green', linestyle=':', label='90% Steady State')
+plt.axvline(rise_time, color='purple', linestyle='-.', label=f'Rise Time ({rise_time:.2f}s)')
+
+# Settling Time visualization (within 2% band of steady state)
+tolerance_band_upper = steady_state_value * (1 + 0.02)
+tolerance_band_lower = steady_state_value * (1 - 0.02)
+plt.axhline(tolerance_band_upper, color='orange', linestyle=':', label='2% Tolerance Band')
+plt.axhline(tolerance_band_lower, color='orange', linestyle=':')
+plt.axvline(settling_time, color='blue', linestyle='-.', label=f'Settling Time ({settling_time:.2f}s)')
+
+# Overshoot visualization
+if overshoot > 0:
+    plt.axvline(peak_time, color='grey', linestyle=':', label=f'Peak Time ({peak_time:.2f}s)')
+    plt.plot(peak_time, peak_value, 'x', color='black', markersize=8, label=f'Peak ({peak_value:.2f})')
+
 plt.xlabel("Time (s)")
 plt.ylabel("Output")
-plt.title("Step Response System")
+plt.title("Step Response with Performance Metrics")
+plt.legend()
+plt.grid(True)
 plt.show()
 
-info = ctrl.step_info(system)
+print("Step Info:")
 print(info)
